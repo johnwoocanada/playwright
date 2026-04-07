@@ -32,28 +32,26 @@ async def init_browser():
 
 
 async def fetch_yield():
-    """
-    Reuse the same page for instant responses.
-    Auto‑recovers if the page crashes.
-    """
     global browser, page
 
     if browser is None or page is None:
         await init_browser()
 
     try:
-        # Refresh the selector only (fast)
-        await page.reload(timeout=60000)
+        # Just read the DOM — no reload
+        el = await page.query_selector(SELECTOR)
+        if el:
+            return await el.inner_text()
+
+        # If selector missing, try soft refresh
+        await page.goto(URL, timeout=60000)
         await page.wait_for_selector(SELECTOR, timeout=60000)
         el = await page.query_selector(SELECTOR)
-        value = await el.inner_text()
-        return value
+        return await el.inner_text()
 
     except Exception as e:
         print("Error during fetch:", e)
-        print("Attempting browser restart...")
-
-        # Restart browser if needed
+        print("Restarting browser...")
         await restart_browser()
         return await fetch_yield()
 
