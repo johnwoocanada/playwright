@@ -1,13 +1,14 @@
 from fastapi import FastAPI
-import asyncio
-from scraper import init_browser, fetch_yield
+from scraper import fetch_yield, fetch_gold
+
+# Author: John
+# local run on windows: 
+# 1. python .\test_playwright.py
+# 2. using docker container
+# A. docker build -t playwright-test .
+# B. docker run -p 8000:8000 playwright-test
 
 app = FastAPI()
-
-@app.on_event("startup")
-async def startup_event():
-    # Launch persistent browser once
-    asyncio.create_task(init_browser())
 
 @app.get("/")
 def root():
@@ -17,3 +18,8 @@ def root():
 async def get_yield():
     value = await fetch_yield()
     return {"yield": value}
+
+@app.get("/gld")
+async def get_gold():
+    value = await fetch_gold()
+    return {"gold": value}
