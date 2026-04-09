@@ -57,8 +57,8 @@ async def init_browser():
     page_gold = await browser.new_page()
     page_yield = await browser.new_page()
 
-    await page_gold.goto(URL_GOLD, wait_until="domcontentloaded", timeout={timeout_3_second})
-    await page_yield.goto(URL_YIELD, wait_until="domcontentloaded", timeout={timeout_3_second})
+    await page_gold.goto(URL_GOLD, wait_until="domcontentloaded", timeout=timeout_3_second)
+    await page_yield.goto(URL_YIELD, wait_until="domcontentloaded", timeout=timeout_3_second)
 
 
 async def background_refresh():
