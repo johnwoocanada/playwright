@@ -54,7 +54,7 @@ async def init_browser():
 async def background_refresh():
     global latest_yield, latest_gold, page
 
-    next = o
+    next = 0
 
     while True:
         try:
@@ -65,7 +65,7 @@ async def background_refresh():
                 latest_gold = await page.inner_text(SELECTOR_GOLD)
 
             # YIELD every 5 seconds
-            if next%5 == 5:
+            if next%5 == 0:
                 await page.goto(URL_YIELD, wait_until="domcontentloaded")
                 await page.wait_for_selector(SELECTOR_YIELD)
                 latest_yield = await page.inner_text(SELECTOR_YIELD)
