@@ -59,13 +59,13 @@ async def background_refresh():
     while True:
         try:
             # GOLD every 2 seconds
-            if next%2 = 0
+            if next%2 == 0:
                 await page.goto(URL_GOLD, wait_until="domcontentloaded")
                 await page.wait_for_selector(SELECTOR_GOLD)
                 latest_gold = await page.inner_text(SELECTOR_GOLD)
 
             # YIELD every 5 seconds
-            if next%5 = 0
+            if next%5 == 5:
                 await page.goto(URL_YIELD, wait_until="domcontentloaded")
                 await page.wait_for_selector(SELECTOR_YIELD)
                 latest_yield = await page.inner_text(SELECTOR_YIELD)
