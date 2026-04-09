@@ -5,8 +5,9 @@ import time
 URL_YIELD = "https://www.tradingview.com/symbols/TVC-US10Y/"
 URL_GOLD = "https://www.tradingview.com/symbols/XAUUSD/"
 
-SELECTOR_YIELD = 'span[data-qa-id="symbol-last-value"]'
 SELECTOR_GOLD = 'span[data-qa-id="symbol-last-value"]'
+SELECTOR_YIELD = 'span.js-symbol-last[data-qa-id="symbol-last-value"]'
+
 
 browser = None
 page = None
@@ -111,7 +112,7 @@ async def periodic_restart():
 
     while True:
         await asyncio.sleep(restart_time)
-        
+
         if background_task is not None:
             background_task.cancel()
             try:
