@@ -1,7 +1,6 @@
 import asyncio
 from playwright.async_api import async_playwright, Page, Browser
-
-# Author: John
+import time
 
 URL_YIELD = "https://www.tradingview.com/symbols/TVC-US10Y/"
 URL_GOLD = "https://www.tradingview.com/symbols/XAUUSD/"
@@ -9,14 +8,16 @@ URL_GOLD = "https://www.tradingview.com/symbols/XAUUSD/"
 SELECTOR_YIELD = 'span[data-qa-id="symbol-last-value"]'
 SELECTOR_GOLD = 'span[data-qa-id="symbol-last-value"]'
 
-
 browser = None
-page_yield = None
-page_gold = None
+page = None
 playwright_instance = None
 
+latest_yield = None
+latest_gold = None
+
+
 async def init_browser():
-    global browser, page_yield, page_gold, playwright_instance
+    global browser, page, playwright_instance
 
     if browser is not None:
         return
@@ -25,73 +26,62 @@ async def init_browser():
 
     browser = await playwright_instance.chromium.launch(
         headless=True,
-        args=["--no-sandbox", "--disable-gpu"]
+        args=[
+            "--no-sandbox",
+            "--disable-gpu",
+            "--disable-dev-shm-usage",
+            "--disable-software-rasterizer",
+            "--disable-extensions",
+            "--disable-background-networking",
+            "--disable-background-timer-throttling",
+            "--disable-breakpad",
+            "--disable-client-side-phishing-detection",
+            "--disable-default-apps",
+            "--disable-hang-monitor",
+            "--disable-popup-blocking",
+            "--disable-prompt-on-repost",
+            "--disable-sync",
+            "--metrics-recording-only",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-features=IsolateOrigins,site-per-process",
+        ]
     )
 
-    # Tab 1 — US10Y
-    page_yield = await browser.new_page()
-    await page_yield.goto(URL_YIELD, timeout=60000)
-    await page_yield.wait_for_selector(SELECTOR_YIELD, timeout=60000)
-
-    # Tab 2 — Gold
-    page_gold = await browser.new_page()
-    await page_gold.goto(URL_GOLD, timeout=60000)
-    await page_gold.wait_for_selector(SELECTOR_GOLD, timeout=60000)
-
-    print("Browser initialized with US10Y + XAUUSD tabs.")
+    page = await browser.new_page()
 
 
-async def fetch_yield():
-    global browser, page_yield
+async def background_refresh():
+    global latest_yield, latest_gold, page
 
-    if browser is None or page_yield is None:
-        await init_browser()
+    next_yield_time = time.time()
+    next_gold_time = time.time()
 
-    try:
-        # Just read the DOM — no reload
-        el = await page_yield.query_selector(SELECTOR_YIELD)
-        if el:
-            return await el.inner_text()
+    while True:
+        now = time.time()
 
-        # If selector missing, try soft refresh
-        await page_yield.goto(URL, timeout=60000)
-        await page_yield.wait_for_selector(SELECTOR_YIELD, timeout=60000)
-        el = await page_yield.query_selector(SELECTOR_YIELD)
-        return await el.inner_text()
+        try:
+            # GOLD every 2 seconds
+            if now >= next_gold_time:
+                await page.goto(URL_GOLD, wait_until="domcontentloaded")
+                await page.wait_for_selector(SELECTOR_GOLD)
+                latest_gold = await page.inner_text(SELECTOR_GOLD)
+                next_gold_time = now + 2
 
-    except Exception as e:
-        print("Error during fetch:", e)
-        print("Restarting browser...")
-        await restart_browser()
-        return await fetch_yield()
+            # YIELD every 5 seconds
+            if now >= next_yield_time:
+                await page.goto(URL_YIELD, wait_until="domcontentloaded")
+                await page.wait_for_selector(SELECTOR_YIELD)
+                latest_yield = await page.inner_text(SELECTOR_YIELD)
+                next_yield_time = now + 5
 
-async def fetch_gold():
-    global browser, page_gold
+        except Exception as e:
+            print("Background refresh error:", e)
 
-    if browser is None or page_gold is None:
-        await init_browser()
+        await asyncio.sleep(0.1)
 
-    try:
-        el = await page_gold.query_selector(SELECTOR_GOLD)
-        if el:
-            txt = await el.inner_text()
-            return txt.replace(",", "")  # clean formatting
-
-        # Soft recovery
-        await page_gold.goto(URL_GOLD, timeout=60000)
-        await page_gold.wait_for_selector(SELECTOR_GOLD, timeout=60000)
-        el = await page_gold.query_selector(SELECTOR_GOLD)
-        return (await el.inner_text()).replace(",", "")
-
-    except Exception as e:
-        print("Gold fetch error:", e)
-        await restart_browser()
-        return await fetch_gold()
 
 async def restart_browser():
-    """
-    Fully restart browser if TradingView crashes.
-    """
     global browser, page, playwright_instance
 
     try:
@@ -99,10 +89,36 @@ async def restart_browser():
             await page.close()
         if browser:
             await browser.close()
+        if playwright_instance:
+            await playwright_instance.stop()
     except:
         pass
 
     browser = None
     page = None
+    playwright_instance = None
 
     await init_browser()
+
+
+background_task = None
+
+
+async def periodic_restart():
+    global background_task
+
+    restart_time = 3600 * 2
+
+    while True:
+        await asyncio.sleep(restart_time)
+        
+        if background_task is not None:
+            background_task.cancel()
+            try:
+                await background_task
+            except:
+                pass
+
+        await restart_browser()
+
+        background_task = asyncio.create_task(background_refresh())

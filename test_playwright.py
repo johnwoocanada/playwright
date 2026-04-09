@@ -1,9 +1,18 @@
 import asyncio
-from scraper import init_browser, fetch_yield, fetch_gold
+import scraper
 
 async def main():
-    await init_browser()
-    print("Yield:", await fetch_yield())
-    print("Gold:", await fetch_gold())
+    await scraper.init_browser()
+
+    # Start background loop
+    task = asyncio.create_task(scraper.background_refresh())
+
+    # Wait long enough for first refresh cycle
+    await asyncio.sleep(3)
+
+    print("Yield:", scraper.latest_yield)
+    print("Gold:", scraper.latest_gold)
+
+    task.cancel()
 
 asyncio.run(main())

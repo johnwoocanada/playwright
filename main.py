@@ -16,10 +16,10 @@ def root():
 
 @app.get("/yield")
 async def get_yield():
-    value = await fetch_yield()
-    return {"yield": value}
+    return {"yield": latest_yield}
+
 
 @app.get("/gld")
 async def get_gold():
-    value = await fetch_gold()
-    return {"gold": value}
+    return {"yield": latest_gold}
+
