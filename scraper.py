@@ -70,7 +70,7 @@ async def background_refresh():
                 await page.wait_for_selector(SELECTOR_YIELD)
                 latest_yield = await page.inner_text(SELECTOR_YIELD)
 
-             next=next+1
+            next=next+1
         except Exception as e:
             print("Background refresh error:", e)
 
