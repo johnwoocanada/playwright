@@ -54,27 +54,23 @@ async def init_browser():
 async def background_refresh():
     global latest_yield, latest_gold, page
 
-    next_yield_time = 0
-    next_gold_time = 0
+    next = o
 
     while True:
-        now = time.time()
-
         try:
             # GOLD every 2 seconds
-            if now >= next_gold_time:
+            if next%2 = 0
                 await page.goto(URL_GOLD, wait_until="domcontentloaded")
                 await page.wait_for_selector(SELECTOR_GOLD)
                 latest_gold = await page.inner_text(SELECTOR_GOLD)
-                next_gold_time = now + 2
 
             # YIELD every 5 seconds
-            if now >= next_yield_time:
+            if next%5 = 0
                 await page.goto(URL_YIELD, wait_until="domcontentloaded")
                 await page.wait_for_selector(SELECTOR_YIELD)
                 latest_yield = await page.inner_text(SELECTOR_YIELD)
-                next_yield_time = now + 5
 
+             next=next+1
         except Exception as e:
             print("Background refresh error:", e)
 
