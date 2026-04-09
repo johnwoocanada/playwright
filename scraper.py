@@ -5,9 +5,8 @@ import time
 URL_YIELD = "https://www.tradingview.com/symbols/TVC-US10Y/"
 URL_GOLD = "https://www.tradingview.com/symbols/XAUUSD/"
 
-SELECTOR_GOLD = 'span[data-qa-id="symbol-last-value"]'
+SELECTOR_GOLD = 'span.js-symbol-last[data-qa-id="symbol-last-value"]'
 SELECTOR_YIELD = 'span.js-symbol-last[data-qa-id="symbol-last-value"]'
-
 
 browser = None
 page = None
