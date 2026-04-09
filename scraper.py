@@ -98,7 +98,7 @@ async def restart_browser():
 
 
 background_task = None
-
+restart_task = None
 
 async def periodic_restart():
     global background_task
