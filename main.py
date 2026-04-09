@@ -39,3 +39,7 @@ async def get_yield():
 @app.get("/gld")
 async def get_gold():
     return {"gold": scraper.latest_gold}
+
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "API ready and browser running"}
