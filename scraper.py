@@ -54,8 +54,8 @@ async def init_browser():
 async def background_refresh():
     global latest_yield, latest_gold, page
 
-    next_yield_time = time.time()
-    next_gold_time = time.time()
+    next_yield_time = 0
+    next_gold_time = 0
 
     while True:
         now = time.time()
@@ -78,7 +78,7 @@ async def background_refresh():
         except Exception as e:
             print("Background refresh error:", e)
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(1)
 
 
 async def restart_browser():
