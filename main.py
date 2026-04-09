@@ -36,6 +36,6 @@ app = FastAPI(lifespan=lifespan)
 async def get_yield():
     return {"yield": scraper.latest_yield}
 
-@app.get("/gold")
+@app.get("/gld")
 async def get_gold():
     return {"gold": scraper.latest_gold}
