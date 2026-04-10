@@ -54,8 +54,16 @@ async def init_browser():
         ]
     )
 
-    page_gold = await browser.new_page()
-    page_yield = await browser.new_page()
+    UA_GOLD  = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    UA_YIELD = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+
+    context_gold = await browser.new_context(
+        user_agent=UA_GOLD,viewport={"width": 1280, "height": 800})
+    context_yield = await browser.new_context(
+        user_agent=UA_YIELD,viewport={"width": 1280, "height": 800})
+
+    page_gold = await context_gold.new_page()
+    page_yield = await context_yield.new_page()
 
     await page_gold.goto(URL_GOLD, wait_until="domcontentloaded", timeout=timeout_3_second)
     await page_yield.goto(URL_YIELD, wait_until="domcontentloaded", timeout=timeout_3_second)
@@ -114,7 +122,7 @@ async def restart_browser():
 async def periodic_restart():
     global background_task
 
-    restart_time = 3600
+    restart_time = 1800
     total_restart = 0
 
     while True:
