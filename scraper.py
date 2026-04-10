@@ -17,7 +17,7 @@ playwright_instance = None
 latest_yield = None
 latest_gold = None
 
-timeout_3_second = 3000
+timeout_3_second = 10000
 
 background_task = None
 restart_task = None
@@ -72,13 +72,13 @@ async def background_refresh():
             # GOLD every 2 seconds
             if next % 2 == 0:
                 await page_gold.reload(wait_until="domcontentloaded", timeout=timeout_3_second)
-                await page_gold.wait_for_selector(SELECTOR_GOLD, timeout=timeout_3_second)
+                await page_gold.wait_for_selector(SELECTOR_GOLD, state="visible", timeout=timeout_3_second)
                 latest_gold = await page_gold.inner_text(SELECTOR_GOLD)
 
             # YIELD every 5 seconds
             if next % 5 == 0:
                 await page_yield.goto(URL_YIELD, wait_until="domcontentloaded", timeout=timeout_3_second)
-                await page_yield.wait_for_selector(SELECTOR_YIELD, timeout=timeout_3_second)
+                await page_yield.wait_for_selector(SELECTOR_YIELD, state="visible", timeout=timeout_3_second)
                 latest_yield = await page_yield.inner_text(SELECTOR_YIELD)
 
         except Exception as e:
