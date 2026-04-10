@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import asyncio
 import scraper
+import sys
+sys.stdout.reconfigure(line_buffering=True)
 
 # Author: John
 # local run on windows: 

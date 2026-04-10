@@ -65,7 +65,7 @@ async def background_refresh():
     global latest_yield, latest_gold, page_gold, page_yield
 
     next = 0
-    print(f"Background refresh started @ {datetime.now()}")
+    print(f"Background refresh started @ {datetime.datetime.now()}")
 
     while True:
         try:
@@ -81,11 +81,11 @@ async def background_refresh():
                 await page_yield.wait_for_selector(SELECTOR_YIELD, timeout=timeout_3_second)
                 latest_yield = await page_yield.inner_text(SELECTOR_YIELD)
 
-            next = next + 1
         except Exception as e:
             print(f"Background refresh error: {e}")
-
-        await asyncio.sleep(1)
+        finally:
+            next += 1
+            await asyncio.sleep(1)
 
 
 async def restart_browser():
@@ -101,7 +101,7 @@ async def restart_browser():
         if playwright_instance:
             await playwright_instance.stop()
     except Exception as e:
-        print(f"Error closing browser @ {datetime.now()}: {e}")
+        print(f"Error closing browser @ {datetime.datetime.now()}: {e}")
 
     browser = None
     page_gold = None
@@ -120,16 +120,16 @@ async def periodic_restart():
     while True:
         await asyncio.sleep(restart_time)
         total_restart = total_restart + 1
-        print(f"Restart browser # {total_restart} @ {datetime.now()}")
+        print(f"Restart browser # {total_restart} @ {datetime.datetime.now()}")
 
         if background_task is not None:
             background_task.cancel()
             try:
                 await background_task
             except asyncio.CancelledError:
-                print(f"Background task cancelled @ {datetime.now()}")
+                print(f"Background task cancelled @ {datetime.datetime.now()}")
             except Exception as e:
-                print(f"Error cancelling background taskc @ {datetime.now()}: {e}")
+                print(f"Error cancelling background taskc @ {datetime.datetime.now()}: {e}")
 
         await restart_browser()
 
