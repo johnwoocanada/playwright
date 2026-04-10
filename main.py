@@ -4,6 +4,13 @@ import asyncio
 import scraper
 import sys
 sys.stdout.reconfigure(line_buffering=True)
+import logging
+
+class EndpointFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return all(path not in record.getMessage() for path in ("/gld", "/yield"))
+
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
 # Author: John
 # local run on windows: 
