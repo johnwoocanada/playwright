@@ -40,8 +40,6 @@ async def init_browser():
             "--disable-gpu",
             "--disable-dev-shm-usage",
             "--disable-software-rasterizer",
-            "--single-process",       # saves ~100MB RAM
-            "--no-zygote",            # saves ~50MB RAM
             "--disable-extensions",
             "--disable-background-networking",
             "--disable-background-timer-throttling",
