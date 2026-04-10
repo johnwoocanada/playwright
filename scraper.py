@@ -75,19 +75,23 @@ async def background_refresh():
     next = 0
     print(f"Background refresh started @ {datetime.datetime.now()}")
 
+        # Load pages ONCE
+    await page_gold.goto(URL_GOLD, wait_until="networkidle", timeout=timeout_3_second)
+    await page_yield.goto(URL_YIELD, wait_until="networkidle", timeout=timeout_3_second)
+
     while True:
         try:
             # GOLD every 2 seconds
             if next % 2 == 0:
-                await page_gold.reload(wait_until="domcontentloaded", timeout=timeout_3_second)
-                await page_gold.wait_for_selector(SELECTOR_GOLD, state="visible", timeout=timeout_3_second)
-                latest_gold = await page_gold.inner_text(SELECTOR_GOLD)
+                el = await page_gold.query_selector(SELECTOR_GOLD)
+                if el:
+                    latest_gold = await el.inner_text()
 
             # YIELD every 5 seconds
             if next % 5 == 0:
-                await page_yield.goto(URL_YIELD, wait_until="domcontentloaded", timeout=timeout_3_second)
-                await page_yield.wait_for_selector(SELECTOR_YIELD, state="visible", timeout=timeout_3_second)
-                latest_yield = await page_yield.inner_text(SELECTOR_YIELD)
+                el = await page_yield.query_selector(SELECTOR_YIELD)
+                if el:
+                    latest_yield = await el.inner_text()
 
         except Exception as e:
             print(f"Background refresh error: {e}")
@@ -122,7 +126,7 @@ async def restart_browser():
 async def periodic_restart():
     global background_task
 
-    restart_time = 1800
+    restart_time = 7200
     total_restart = 0
 
     while True:
